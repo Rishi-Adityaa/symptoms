@@ -1,0 +1,3276 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "AI Products",
+    "version": "2.0",
+    "description": "Your project description"
+  },
+  "paths": {
+    "/aiproducts/": {
+      "get": {
+        "operationId": "aiproducts_root_list",
+        "summary": "List Projects",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "project_type",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "project_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                      },
+                      "project_name": {
+                        "type": "string",
+                        "maxLength": 100
+                      },
+                      "project_type": {
+                        "enum": [
+                          "AskYoDa",
+                          "Translathor",
+                          "X-Merge"
+                        ],
+                        "type": "string",
+                        "description": "* `AskYoDa` - Askyoda\n* `Translathor` - Translathor\n* `X-Merge` - X Merge"
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                      },
+                      "user": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "created_at",
+                      "project_id",
+                      "project_name",
+                      "project_type",
+                      "user"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/{project_id}": {
+      "get": {
+        "operationId": "aiproducts_root_retrieve",
+        "summary": "Retrieve Project",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "project_name": {
+                      "type": "string",
+                      "maxLength": 100
+                    },
+                    "project_type": {
+                      "enum": [
+                        "AskYoDa",
+                        "Translathor",
+                        "X-Merge"
+                      ],
+                      "type": "string",
+                      "description": "* `AskYoDa` - Askyoda\n* `Translathor` - Translathor\n* `X-Merge` - X Merge"
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "readOnly": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  },
+                  "required": [
+                    "created_at",
+                    "project_id",
+                    "project_name",
+                    "project_type",
+                    "user"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_create",
+        "description": "Allows you to create a new Ask YODA project with specified details.",
+        "summary": "Create Project",
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credential": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "The credential resource name",
+                    "maxLength": 255
+                  },
+                  "asset": {
+                    "type": "string",
+                    "nullable": true,
+                    "description": "The asset sub_resource name",
+                    "maxLength": 255
+                  },
+                  "ocr_provider": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "speech_to_text_provider": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "llm_provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Select a default LLM provider to use in your project."
+                  },
+                  "llm_model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Select a default Model for LLM provider to use in your project"
+                  },
+                  "chunk_size": {
+                    "type": "integer",
+                    "maximum": 10000,
+                    "minimum": 1,
+                    "nullable": true
+                  },
+                  "chunk_separators": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  },
+                  "project_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Project name"
+                  },
+                  "collection_name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Database Collection Name"
+                  },
+                  "db_provider": {
+                    "allOf": [
+                      {
+                        "enum": [
+                          "qdrant",
+                          "supabase"
+                        ],
+                        "type": "string",
+                        "description": "* `qdrant` - qdrant\n* `supabase` - supabase"
+                      }
+                    ],
+                    "default": "qdrant",
+                    "description": "Database Provider\n\n* `qdrant` - qdrant\n* `supabase` - supabase"
+                  },
+                  "embeddings_provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "cohere",
+                    "description": "Select an embedding provider to use in your search database. Leave empty for default."
+                  }
+                },
+                "required": [
+                  "collection_name",
+                  "ocr_provider",
+                  "project_name",
+                  "speech_to_text_provider"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "project_id": {
+                      "format": "uuid",
+                      "title": "Project Id",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "project_id"
+                  ],
+                  "title": "YodaCreateProjectResponse",
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "object",
+                          "properties": {
+                            "<parameter_name>": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "<parameter_name>"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "details": {
+                      "type": "string",
+                      "default": "Not Found"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/add_file": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_add_file_create",
+        "description": "This endpoint enables you to upload files (**CSV**, **AUDIO**, **PDF**, or **XML**) into your project. <br> Upon upload, the file will be processed and stored as text embeddings within the project's database. <br>\n\n### Supported File Types\n- **CSV**: Comma-separated values files.\n- **Audio**: Supported audio formats for transcription to text.\n- **PDF**: Portable Document Format files.\n- **XML**: Extensible Markup Language files.\n\n### OCR Processing and Speech-to-Text\nIf the uploaded file is a PDF, it will undergo Optical Character Recognition (OCR) processing using the default provider chosen during the project creation step. <br>\nSimilarly, audio files will be converted to text using Speech-to-Text, also utilizing the default provider configured during project setup.\n\n### Accepted File Extensions\n- **PDF**\n- **CSV**\n- **AMR**\n- **FLAC**\n- **WAV**\n- **OGG**\n- **MP3**\n- **MP4**\n- **WEBM**\n- **XML**\n\n\n",
+        "summary": "Add File",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data_type": {
+                    "enum": [
+                      "pdf",
+                      "audio",
+                      "csv",
+                      "xml"
+                    ],
+                    "type": "string",
+                    "description": "* `pdf` - pdf\n* `audio` - audio\n* `csv` - csv\n* `xml` - xml"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to analyse in binary format to be used with *content-type*: **multipart/form-data** <br> **Does not work with application/json !**",
+                    "pattern": "(?:pdf|csv|amr|flac|wav|ogg|mp3|mp4|webm|xml)$"
+                  },
+                  "file_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "description": "File **URL** to analyse to be used with with *content-type*: **application/json**."
+                  },
+                  "metadata": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Optional parameter: Attach metadata to the uploaded file data in your database. Provide a stringified JSON with key-value pairs. Useful in `filter_document` when querying the language model, it allows you to filter data with your Chatbot by considering only documents that have the specified metadata."
+                  },
+                  "provider": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1,
+                    "description": "Select a provider to use, only for audio (speech-to-text) & pdf (ocr-async) files."
+                  }
+                },
+                "required": [
+                  "data_type"
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data_type": {
+                    "enum": [
+                      "pdf",
+                      "audio",
+                      "csv",
+                      "xml"
+                    ],
+                    "type": "string",
+                    "description": "* `pdf` - pdf\n* `audio` - audio\n* `csv` - csv\n* `xml` - xml"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "File to analyse in binary format to be used with *content-type*: **multipart/form-data** <br> **Does not work with application/json !**",
+                    "pattern": "(?:pdf|csv|amr|flac|wav|ogg|mp3|mp4|webm|xml)$"
+                  },
+                  "file_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "nullable": true,
+                    "description": "File **URL** to analyse to be used with with *content-type*: **application/json**."
+                  },
+                  "metadata": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Optional parameter: Attach metadata to the uploaded file data in your database. Provide a stringified JSON with key-value pairs. Useful in `filter_document` when querying the language model, it allows you to filter data with your Chatbot by considering only documents that have the specified metadata."
+                  },
+                  "provider": {
+                    "type": "string",
+                    "nullable": true,
+                    "minLength": 1,
+                    "description": "Select a provider to use, only for audio (speech-to-text) & pdf (ocr-async) files."
+                  }
+                },
+                "required": [
+                  "data_type"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "201": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/add_text": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_add_text_create",
+        "description": "Add text data in your project, which will be stored as embeddings\nwithin your chosen database provider.",
+        "summary": "Add Texts",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "texts": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "LLM Query"
+                  },
+                  "metadata": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "texts"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "201": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/add_url": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_add_url_create",
+        "description": "Add a list of URLs into your projects,\nthey will be processed and stored as text embeddings within your project.",
+        "summary": "Add Urls",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "Add multiple urls into the database, it loads all the text from HTML webpages into a document format."
+                  },
+                  "metadata": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {}
+                    },
+                    "default": []
+                  }
+                },
+                "required": [
+                  "urls"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "201": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/ask_llm": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_ask_llm_create",
+        "description": "Retrieve a list of search query responses and compare them to your\ninput. Provide a query, and in return, receive scores for the most relevant items from your project,\nranked by their proximity to your query.",
+        "summary": "Ask LLM",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Enter your question or query about the data. The large language model (LLM) will provide a response."
+                  },
+                  "llm_provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "openai",
+                    "description": "Select a provider for the large language model for processing. Leave empty for default."
+                  },
+                  "llm_model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Specify the model to use for language processing. Leave empty for default."
+                  },
+                  "k": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 3,
+                    "description": "How many results chunk you want to return"
+                  },
+                  "history": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "A dictionary representing a single conversation in the previous history. Must contain 'user' and 'assistant' fields."
+                    },
+                    "default": [],
+                    "description": "A list containing all the previous conversations between the user and the chatbot AI. Each item in the list should be a dictionary with two keys: 'user' and 'assistant'."
+                  },
+                  "chatbot_global_action": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A system message that helps set the behavior of the assistant."
+                  },
+                  "filter_documents": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "default": {},
+                    "description": "Filter uploaded documents based on their metadata. Specify key-value pairs where the key represents the metadata field and the value is the desired metadata value. Please ensure that the provided metadata keys are available in your database."
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "format": "double",
+                    "maximum": 2,
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Higher values mean the model will take more risks and value 0 (argmax sampling) works better for scenarios with a well-defined answer."
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "maximum": 16385,
+                    "minimum": 1,
+                    "default": 100,
+                    "description": "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length."
+                  },
+                  "conversation_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "result": {
+                      "items": {
+                        "properties": {
+                          "id": {
+                            "format": "uuid",
+                            "title": "Id",
+                            "type": "string"
+                          },
+                          "version": {
+                            "title": "Version",
+                            "type": "integer"
+                          },
+                          "score": {
+                            "title": "Score",
+                            "type": "integer"
+                          },
+                          "payload": {
+                            "properties": {
+                              "metadata": {
+                                "title": "Metadata",
+                                "type": "object"
+                              },
+                              "page_content": {
+                                "title": "Page Content",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "metadata",
+                              "page_content"
+                            ],
+                            "title": "YodaQueryResponsePayload",
+                            "type": "object"
+                          },
+                          "vector": {
+                            "title": "Vector"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "version",
+                          "score",
+                          "payload",
+                          "vector"
+                        ],
+                        "title": "YodaQueryResponseItem",
+                        "type": "object"
+                      },
+                      "title": "Result",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "result"
+                  ],
+                  "title": "YodaQueryResponse",
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "object",
+                          "properties": {
+                            "<parameter_name>": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "<parameter_name>"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "details": {
+                      "type": "string",
+                      "default": "Not Found"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/conversations/": {
+      "get": {
+        "operationId": "aiproducts_askyoda_v2_conversations_list",
+        "summary": "List Conversations",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                      },
+                      "name": {
+                        "type": "string",
+                        "nullable": true,
+                        "maxLength": 255
+                      }
+                    },
+                    "required": [
+                      "id"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_conversations_create",
+        "summary": "Create Conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    }
+                  },
+                  "required": [
+                    "id"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/conversations/{conversation_id}/": {
+      "get": {
+        "operationId": "aiproducts_askyoda_v2_conversations_retrieve",
+        "summary": "Retrieve Conversation Details",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user_text": {
+                            "type": "string"
+                          },
+                          "assistant_text": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "user_text"
+                        ]
+                      },
+                      "readOnly": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "messages"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "put": {
+        "operationId": "aiproducts_askyoda_v2_conversations_update",
+        "summary": "Update Conversation Name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user_text": {
+                            "type": "string"
+                          },
+                          "assistant_text": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "user_text"
+                        ]
+                      },
+                      "readOnly": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "messages"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "patch": {
+        "operationId": "aiproducts_askyoda_v2_conversations_partial_update",
+        "summary": "Update Conversation Name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "nullable": true,
+                    "maxLength": 255
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "nullable": true,
+                      "maxLength": 255
+                    },
+                    "messages": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "user_text": {
+                            "type": "string"
+                          },
+                          "assistant_text": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "user_text"
+                        ]
+                      },
+                      "readOnly": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "messages"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "aiproducts_askyoda_v2_conversations_destroy",
+        "summary": "Delete Conversation",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/delete_chunk": {
+      "delete": {
+        "operationId": "aiproducts_askyoda_v2_delete_chunk_destroy",
+        "description": "Delete a query from your project by its ID.",
+        "summary": "Delete Chunk",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "chunk_id",
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "result": {
+                      "default": "Done!",
+                      "title": "Result",
+                      "type": "string"
+                    }
+                  },
+                  "title": "YodaDeleteResponse",
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "object",
+                          "properties": {
+                            "<parameter_name>": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "<parameter_name>"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "details": {
+                      "type": "string",
+                      "default": "Not Found"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/files/": {
+      "get": {
+        "operationId": "aiproducts_askyoda_v2_files_list",
+        "summary": "List Files",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "file_id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "readOnly": true
+                      },
+                      "user": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "project": {
+                        "type": "string",
+                        "readOnly": true
+                      },
+                      "file_type": {
+                        "type": "string",
+                        "maxLength": 255
+                      },
+                      "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "readOnly": true
+                      },
+                      "status": {
+                        "nullable": true,
+                        "oneOf": [
+                          {
+                            "enum": [
+                              "succeeded",
+                              "failed",
+                              "finished",
+                              "processing"
+                            ],
+                            "type": "string",
+                            "description": "* `succeeded` - Status Succeeded\n* `failed` - Status Failed\n* `finished` - Status Finished\n* `processing` - Status Processing"
+                          },
+                          {
+                            "enum": [
+                              null
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "created_at",
+                      "file_id",
+                      "file_type",
+                      "project",
+                      "user"
+                    ]
+                  }
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/files/{file_id}/": {
+      "get": {
+        "operationId": "aiproducts_askyoda_v2_files_retrieve",
+        "summary": "Get File",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "file_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "file_id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "readOnly": true
+                    },
+                    "user": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "project": {
+                      "type": "string",
+                      "readOnly": true
+                    },
+                    "file_type": {
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "created_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "readOnly": true
+                    },
+                    "status": {
+                      "nullable": true,
+                      "oneOf": [
+                        {
+                          "enum": [
+                            "succeeded",
+                            "failed",
+                            "finished",
+                            "processing"
+                          ],
+                          "type": "string",
+                          "description": "* `succeeded` - Status Succeeded\n* `failed` - Status Failed\n* `finished` - Status Finished\n* `processing` - Status Processing"
+                        },
+                        {
+                          "enum": [
+                            null
+                          ]
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "created_at",
+                    "file_id",
+                    "file_type",
+                    "project",
+                    "user"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "operationId": "aiproducts_askyoda_v2_files_destroy",
+        "summary": "Delete File",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "file_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          },
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/info": {
+      "get": {
+        "operationId": "aiproducts_askyoda_v2_info_retrieve",
+        "description": "Retrieve details about your project within your Ask YODA project,\nincluding the total number of items stored in your project collection and default models",
+        "summary": "Get info",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "db_provider": {
+                      "title": "Db Provider",
+                      "type": "string"
+                    },
+                    "embeddings_provider": {
+                      "title": "Embeddings Provider",
+                      "type": "string"
+                    },
+                    "llm_provider": {
+                      "title": "Llm Provider",
+                      "type": "string"
+                    },
+                    "llm_model": {
+                      "title": "Llm Model",
+                      "type": "string"
+                    },
+                    "collection_size": {
+                      "title": "Collection Size",
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "db_provider",
+                    "embeddings_provider",
+                    "llm_provider",
+                    "llm_model",
+                    "collection_size"
+                  ],
+                  "title": "YodaInfoResponse",
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "object",
+                          "properties": {
+                            "<parameter_name>": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "<parameter_name>"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "details": {
+                      "type": "string",
+                      "default": "Not Found"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/query": {
+      "post": {
+        "operationId": "aiproducts_askyoda_v2_query_create",
+        "description": "Interact with your data by selecting your preferred Language Model \nprovider. The chosen provider will then respond to queries based on the data you have added\nto your collection",
+        "summary": "Query",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Enter your question or query about the data. The large language model (LLM) will provide a response."
+                  },
+                  "llm_provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "default": "openai",
+                    "description": "Select a provider for the large language model for processing. Leave empty for default."
+                  },
+                  "llm_model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Specify the model to use for language processing. Leave empty for default."
+                  },
+                  "k": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 3,
+                    "description": "How many results chunk you want to return"
+                  },
+                  "history": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": {},
+                      "description": "A dictionary representing a single conversation in the previous history. Must contain 'user' and 'assistant' fields."
+                    },
+                    "default": [],
+                    "description": "A list containing all the previous conversations between the user and the chatbot AI. Each item in the list should be a dictionary with two keys: 'user' and 'assistant'."
+                  },
+                  "chatbot_global_action": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "A system message that helps set the behavior of the assistant."
+                  },
+                  "filter_documents": {
+                    "type": "object",
+                    "additionalProperties": {},
+                    "default": {},
+                    "description": "Filter uploaded documents based on their metadata. Specify key-value pairs where the key represents the metadata field and the value is the desired metadata value. Please ensure that the provided metadata keys are available in your database."
+                  },
+                  "temperature": {
+                    "type": "number",
+                    "format": "double",
+                    "maximum": 2,
+                    "minimum": 0,
+                    "default": 0,
+                    "description": "Higher values mean the model will take more risks and value 0 (argmax sampling) works better for scenarios with a well-defined answer."
+                  },
+                  "max_tokens": {
+                    "type": "integer",
+                    "maximum": 16385,
+                    "minimum": 1,
+                    "default": 100,
+                    "description": "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length."
+                  },
+                  "conversation_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "result": {
+                      "title": "Result",
+                      "type": "string"
+                    },
+                    "llm_provider": {
+                      "title": "Llm Provider",
+                      "type": "string"
+                    },
+                    "llm_model": {
+                      "title": "Llm Model",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "result",
+                    "llm_provider",
+                    "llm_model"
+                  ],
+                  "title": "YodaAskLlmResponse",
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "object",
+                          "properties": {
+                            "<parameter_name>": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "required": [
+                            "<parameter_name>"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "details": {
+                      "type": "string",
+                      "default": "Not Found"
+                    }
+                  }
+                }
+              }
+            },
+            "description": ""
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "message": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "message",
+                        "type"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "error"
+                  ]
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/aiproducts/askyoda/v2/{project_id}/update_project": {
+      "patch": {
+        "operationId": "aiproducts_askyoda_v2_update_project_partial_update",
+        "description": "Update the default settings of the Yoda project.\nIt allows you to modify the project's default settings,\nspecifically changing the llm_provider (language model provider),\nllm_model (language model), ocr_provider (upload pdf), speech_to_text provider (upload audio)\nand the default chunks parameter associated with the default project.",
+        "summary": "Update Project",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ocr_provider": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "speech_to_text_provider": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "llm_provider": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Select a default LLM provider to use in your project."
+                  },
+                  "llm_model": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Select a default Model for LLM provider to use in your project"
+                  },
+                  "chunk_size": {
+                    "type": "integer",
+                    "maximum": 10000,
+                    "minimum": 1,
+                    "nullable": true
+                  },
+                  "chunk_separators": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "200": {
+            "description": "No response body"
+          }
+        }
+      }
+    },
+    "/aiproducts/delete/{project_id}": {
+      "delete": {
+        "operationId": "aiproducts_delete_destroy",
+        "description": "View to delete an AI project.",
+        "summary": "Delete Project",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "project_id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true
+          }
+        ],
+        "tags": [
+          "Custom Chatbot"
+        ],
+        "security": [
+          {
+            "FeatureApiAuth": []
+          },
+          {}
+        ],
+        "responses": {
+          "204": {
+            "description": "No response body"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AIProject": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "project_name": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "project_type": {
+            "enum": [
+              "AskYoDa",
+              "Translathor",
+              "X-Merge"
+            ],
+            "type": "string",
+            "description": "* `AskYoDa` - Askyoda\n* `Translathor` - Translathor\n* `X-Merge` - X Merge"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "user": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "created_at",
+          "project_id",
+          "project_name",
+          "project_type",
+          "user"
+        ]
+      },
+      "AddFileRequest": {
+        "type": "object",
+        "properties": {
+          "data_type": {
+            "enum": [
+              "pdf",
+              "audio",
+              "csv",
+              "xml"
+            ],
+            "type": "string",
+            "description": "* `pdf` - pdf\n* `audio` - audio\n* `csv` - csv\n* `xml` - xml"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "description": "File to analyse in binary format to be used with *content-type*: **multipart/form-data** <br> **Does not work with application/json !**",
+            "pattern": "(?:pdf|csv|amr|flac|wav|ogg|mp3|mp4|webm|xml)$"
+          },
+          "file_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "File **URL** to analyse to be used with with *content-type*: **application/json**."
+          },
+          "metadata": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional parameter: Attach metadata to the uploaded file data in your database. Provide a stringified JSON with key-value pairs. Useful in `filter_document` when querying the language model, it allows you to filter data with your Chatbot by considering only documents that have the specified metadata."
+          },
+          "provider": {
+            "type": "string",
+            "nullable": true,
+            "minLength": 1,
+            "description": "Select a provider to use, only for audio (speech-to-text) & pdf (ocr-async) files."
+          }
+        },
+        "required": [
+          "data_type"
+        ]
+      },
+      "AddTextRequest": {
+        "type": "object",
+        "properties": {
+          "texts": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "LLM Query"
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "texts"
+        ]
+      },
+      "AddUrlRequest": {
+        "type": "object",
+        "properties": {
+          "urls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": "Add multiple urls into the database, it loads all the text from HTML webpages into a document format."
+          },
+          "metadata": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            },
+            "default": []
+          }
+        },
+        "required": [
+          "urls"
+        ]
+      },
+      "AiProductFile": {
+        "type": "object",
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "user": {
+            "type": "string",
+            "readOnly": true
+          },
+          "project": {
+            "type": "string",
+            "readOnly": true
+          },
+          "file_type": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "status": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "enum": [
+                  "succeeded",
+                  "failed",
+                  "finished",
+                  "processing"
+                ],
+                "type": "string",
+                "description": "* `succeeded` - Status Succeeded\n* `failed` - Status Failed\n* `finished` - Status Finished\n* `processing` - Status Processing"
+              },
+              {
+                "enum": [
+                  null
+                ]
+              }
+            ]
+          }
+        },
+        "required": [
+          "created_at",
+          "file_id",
+          "file_type",
+          "project",
+          "user"
+        ]
+      },
+      "AskLLMRequest": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Enter your question or query about the data. The large language model (LLM) will provide a response."
+          },
+          "llm_provider": {
+            "type": "string",
+            "minLength": 1,
+            "default": "openai",
+            "description": "Select a provider for the large language model for processing. Leave empty for default."
+          },
+          "llm_model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Specify the model to use for language processing. Leave empty for default."
+          },
+          "k": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 3,
+            "description": "How many results chunk you want to return"
+          },
+          "history": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {},
+              "description": "A dictionary representing a single conversation in the previous history. Must contain 'user' and 'assistant' fields."
+            },
+            "default": [],
+            "description": "A list containing all the previous conversations between the user and the chatbot AI. Each item in the list should be a dictionary with two keys: 'user' and 'assistant'."
+          },
+          "chatbot_global_action": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A system message that helps set the behavior of the assistant."
+          },
+          "filter_documents": {
+            "type": "object",
+            "additionalProperties": {},
+            "default": {},
+            "description": "Filter uploaded documents based on their metadata. Specify key-value pairs where the key represents the metadata field and the value is the desired metadata value. Please ensure that the provided metadata keys are available in your database."
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double",
+            "maximum": 2,
+            "minimum": 0,
+            "default": 0,
+            "description": "Higher values mean the model will take more risks and value 0 (argmax sampling) works better for scenarios with a well-defined answer."
+          },
+          "max_tokens": {
+            "type": "integer",
+            "maximum": 16385,
+            "minimum": 1,
+            "default": 100,
+            "description": "The maximum number of tokens to generate in the completion. The token count of your prompt plus max_tokens cannot exceed the model's context length."
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "AskYourDataProjectRequest": {
+        "type": "object",
+        "properties": {
+          "credential": {
+            "type": "string",
+            "nullable": true,
+            "description": "The credential resource name",
+            "maxLength": 255
+          },
+          "asset": {
+            "type": "string",
+            "nullable": true,
+            "description": "The asset sub_resource name",
+            "maxLength": 255
+          },
+          "ocr_provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "speech_to_text_provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "llm_provider": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Select a default LLM provider to use in your project."
+          },
+          "llm_model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Select a default Model for LLM provider to use in your project"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "maximum": 10000,
+            "minimum": 1,
+            "nullable": true
+          },
+          "chunk_separators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          },
+          "project_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Project name"
+          },
+          "collection_name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Database Collection Name"
+          },
+          "db_provider": {
+            "allOf": [
+              {
+                "enum": [
+                  "qdrant",
+                  "supabase"
+                ],
+                "type": "string",
+                "description": "* `qdrant` - qdrant\n* `supabase` - supabase"
+              }
+            ],
+            "default": "qdrant",
+            "description": "Database Provider\n\n* `qdrant` - qdrant\n* `supabase` - supabase"
+          },
+          "embeddings_provider": {
+            "type": "string",
+            "minLength": 1,
+            "default": "cohere",
+            "description": "Select an embedding provider to use in your search database. Leave empty for default."
+          }
+        },
+        "required": [
+          "collection_name",
+          "ocr_provider",
+          "project_name",
+          "speech_to_text_provider"
+        ]
+      },
+      "BadRequest": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "message": {
+                "type": "object",
+                "properties": {
+                  "<parameter_name>": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "<parameter_name>"
+                ]
+              }
+            },
+            "required": [
+              "message",
+              "type"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "Conversation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "ConversationDetail": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "user_text": {
+                  "type": "string"
+                },
+                "assistant_text": {
+                  "type": "string",
+                  "nullable": true
+                }
+              },
+              "required": [
+                "user_text"
+              ]
+            },
+            "readOnly": true
+          }
+        },
+        "required": [
+          "id",
+          "messages"
+        ]
+      },
+      "ConversationDetailRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "ConversationRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "DataTypeEnum": {
+        "enum": [
+          "pdf",
+          "audio",
+          "csv",
+          "xml"
+        ],
+        "type": "string",
+        "description": "* `pdf` - pdf\n* `audio` - audio\n* `csv` - csv\n* `xml` - xml"
+      },
+      "DbProviderEnum": {
+        "enum": [
+          "qdrant",
+          "supabase"
+        ],
+        "type": "string",
+        "description": "* `qdrant` - qdrant\n* `supabase` - supabase"
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "message",
+              "type"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "<parameter_name>": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "<parameter_name>"
+        ]
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "user_text": {
+            "type": "string"
+          },
+          "assistant_text": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "user_text"
+        ]
+      },
+      "MessageRequest": {
+        "type": "object",
+        "properties": {
+          "user_text": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assistant_text": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "user_text"
+        ]
+      },
+      "NestedBadRequest": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "object",
+            "properties": {
+              "<parameter_name>": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "<parameter_name>"
+            ]
+          }
+        },
+        "required": [
+          "message",
+          "type"
+        ]
+      },
+      "NestedError": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "type"
+        ]
+      },
+      "NotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "details": {
+            "type": "string",
+            "default": "Not Found"
+          }
+        }
+      },
+      "NullEnum": {
+        "enum": [
+          null
+        ]
+      },
+      "PatchedAskYodaProjectUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "ocr_provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "speech_to_text_provider": {
+            "type": "string",
+            "minLength": 1
+          },
+          "llm_provider": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Select a default LLM provider to use in your project."
+          },
+          "llm_model": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Select a default Model for LLM provider to use in your project"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "maximum": 10000,
+            "minimum": 1,
+            "nullable": true
+          },
+          "chunk_separators": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "PatchedConversationDetailRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 255
+          }
+        }
+      },
+      "ProjectTypeEnum": {
+        "enum": [
+          "AskYoDa",
+          "Translathor",
+          "X-Merge"
+        ],
+        "type": "string",
+        "description": "* `AskYoDa` - Askyoda\n* `Translathor` - Translathor\n* `X-Merge` - X Merge"
+      },
+      "StatusEnum": {
+        "enum": [
+          "succeeded",
+          "failed",
+          "finished",
+          "processing"
+        ],
+        "type": "string",
+        "description": "* `succeeded` - Status Succeeded\n* `failed` - Status Failed\n* `finished` - Status Finished\n* `processing` - Status Processing"
+      },
+      "YodaAskLlmResponse": {
+        "properties": {
+          "result": {
+            "title": "Result",
+            "type": "string"
+          },
+          "llm_provider": {
+            "title": "Llm Provider",
+            "type": "string"
+          },
+          "llm_model": {
+            "title": "Llm Model",
+            "type": "string"
+          }
+        },
+        "required": [
+          "result",
+          "llm_provider",
+          "llm_model"
+        ],
+        "title": "YodaAskLlmResponse",
+        "type": "object"
+      },
+      "YodaCreateProjectResponse": {
+        "properties": {
+          "project_id": {
+            "format": "uuid",
+            "title": "Project Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "project_id"
+        ],
+        "title": "YodaCreateProjectResponse",
+        "type": "object"
+      },
+      "YodaDeleteResponse": {
+        "properties": {
+          "result": {
+            "default": "Done!",
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "title": "YodaDeleteResponse",
+        "type": "object"
+      },
+      "YodaInfoResponse": {
+        "properties": {
+          "db_provider": {
+            "title": "Db Provider",
+            "type": "string"
+          },
+          "embeddings_provider": {
+            "title": "Embeddings Provider",
+            "type": "string"
+          },
+          "llm_provider": {
+            "title": "Llm Provider",
+            "type": "string"
+          },
+          "llm_model": {
+            "title": "Llm Model",
+            "type": "string"
+          },
+          "collection_size": {
+            "title": "Collection Size",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "db_provider",
+          "embeddings_provider",
+          "llm_provider",
+          "llm_model",
+          "collection_size"
+        ],
+        "title": "YodaInfoResponse",
+        "type": "object"
+      },
+      "YodaQueryResponse": {
+        "properties": {
+          "result": {
+            "items": {
+              "properties": {
+                "id": {
+                  "format": "uuid",
+                  "title": "Id",
+                  "type": "string"
+                },
+                "version": {
+                  "title": "Version",
+                  "type": "integer"
+                },
+                "score": {
+                  "title": "Score",
+                  "type": "integer"
+                },
+                "payload": {
+                  "properties": {
+                    "metadata": {
+                      "title": "Metadata",
+                      "type": "object"
+                    },
+                    "page_content": {
+                      "title": "Page Content",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "metadata",
+                    "page_content"
+                  ],
+                  "title": "YodaQueryResponsePayload",
+                  "type": "object"
+                },
+                "vector": {
+                  "title": "Vector"
+                }
+              },
+              "required": [
+                "id",
+                "version",
+                "score",
+                "payload",
+                "vector"
+              ],
+              "title": "YodaQueryResponseItem",
+              "type": "object"
+            },
+            "title": "Result",
+            "type": "array"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "title": "YodaQueryResponse",
+        "type": "object"
+      },
+      "YodaQueryResponseItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "score": {
+            "title": "Score",
+            "type": "integer"
+          },
+          "payload": {
+            "properties": {
+              "metadata": {
+                "title": "Metadata",
+                "type": "object"
+              },
+              "page_content": {
+                "title": "Page Content",
+                "type": "string"
+              }
+            },
+            "required": [
+              "metadata",
+              "page_content"
+            ],
+            "title": "YodaQueryResponsePayload",
+            "type": "object"
+          },
+          "vector": {
+            "title": "Vector"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "score",
+          "payload",
+          "vector"
+        ],
+        "title": "YodaQueryResponseItem",
+        "type": "object"
+      },
+      "YodaQueryResponsePayload": {
+        "properties": {
+          "metadata": {
+            "title": "Metadata",
+            "type": "object"
+          },
+          "page_content": {
+            "title": "Page Content",
+            "type": "string"
+          }
+        },
+        "required": [
+          "metadata",
+          "page_content"
+        ],
+        "title": "YodaQueryResponsePayload",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "FeatureApiAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.edenai.run/v2"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+.fixedBg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: rgb(0,0,0);
+    background: linear-gradient(90deg, rgba(0,0,0,1) 6%, rgba(115,113,113,1) 100%, rgba(27,17,44,1) 100%);
+    z-index: -1;
+    /* 12-04-76 */
+  }
+
+
+.navBt{
+    color: white;
+}
+
+.mainBd{
+    display: flex;
+    margin-inline: auto;
+    margin-top: 40px;
+    height: 80vh;
+    width: 80vw;
+    border: solid 1px white;
+}
+
+.videoContainer {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  .video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: 1;
+    transform: translate(-50%, -50%);
+  }
+  
+  .content {
+    position: relative;
+    z-index: 2; /* Content will appear above the video */
+    color: white; /* Adjust as needed */
+    text-align: center;
+  }
+  
